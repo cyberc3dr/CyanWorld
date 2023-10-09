@@ -1,12 +1,12 @@
 package ru.cyanworld.cyanuniverse;
 
-import com.fastasyncworldedit.core.FaweAPI;
+import com.boydti.fawe.FaweAPI;
+import com.boydti.fawe.util.EditSessionBuilder;
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.blocks.BaseBlock;
+import com.sk89q.worldedit.blocks.BlockID;
 import com.sk89q.worldedit.regions.CuboidRegion;
-import com.sk89q.worldedit.regions.Region;
-import com.sk89q.worldedit.world.block.BlockTypes;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.*;
@@ -30,11 +30,11 @@ public class WorldManager {
 
     public static World generateEmptyWorld(String name, int size, boolean autoSave) {
         new WorldCreator(name)
-                .type(WorldType.FLAT)
-                .seed(0)
-                .generatorSettings("3;minecraft:air")
-                .generateStructures(false)
-                .createWorld();
+            .type(WorldType.FLAT)
+            .seed(0)
+            .generatorSettings("3;minecraft:air")
+            .generateStructures(false)
+            .createWorld();
         World world = server.getWorld(name);
         world.setGameRuleValue("doMobSpawning", "false");
         world.setGameRuleValue("doDaylightCycle", "false");
@@ -50,11 +50,11 @@ public class WorldManager {
 
     public static World generateWorld(String name, WorldType worldType, long seed, String generatorSettings, boolean generateStructures, int size, boolean autoSave) {
         new WorldCreator(name)
-                .type(worldType)
-                .seed(seed)
-                .generatorSettings(generatorSettings)
-                .generateStructures(generateStructures)
-                .createWorld();
+            .type(worldType)
+            .seed(seed)
+            .generatorSettings(generatorSettings)
+            .generateStructures(generateStructures)
+            .createWorld();
         World world = server.getWorld(name);
         world.setGameRuleValue("doMobSpawning", "false");
         world.setGameRuleValue("doDaylightCycle", "false");
@@ -89,7 +89,7 @@ public class WorldManager {
 
         boolean initworld = worldname.startsWith(playeruuid);
 
-        TextComponent header = new TextComponent("§2KiwiServer");
+        TextComponent header = new TextComponent("§3Cyan§bWorld");
         TextComponent footer = new TextComponent("Мир " + ownername);
 
         if (worldname.startsWith(playeruuid)) player.setAllowFlight(true);
@@ -166,10 +166,10 @@ public class WorldManager {
                 if (worldname.startsWith(playeruuid)) {
                     player.setGameMode(GameMode.ADVENTURE);
                     player.sendMessage(" \n§b§lДобро пожаловать в Кодинг!" +
-                            "\n§rДля быстрого переключения между режимами используйте команды:\n§b/mode play§r, §b/mode code§r, §b/mode build" +
-                            "\n§rДля дюпа предметов команда: §b/dupe" +
-                            "\n§rВыдать права кодинга игроку: §b/code ник" +
-                            "\n ");
+                        "\n§rДля быстрого переключения между режимами используйте команды:\n§b/mode play§r, §b/mode code§r, §b/mode build" +
+                        "\n§rДля дюпа предметов команда: §b/dupe" +
+                        "\n§rВыдать права кодинга игроку: §b/code ник" +
+                        "\n ");
                 } else {
                     player.setGameMode(GameMode.SPECTATOR);
                 }
@@ -250,7 +250,7 @@ public class WorldManager {
             }
         }, 5);
 
-        TextComponent header = new TextComponent("§2KiwiServer");
+        TextComponent header = new TextComponent("§3Cyan§bWorld");
         TextComponent footer = new TextComponent("Лобби");
         player.setPlayerListHeaderFooter(header, footer);
     }
@@ -263,17 +263,30 @@ public class WorldManager {
 
         switch (type) {
             case GRASS: {
-                try (EditSession session = WorldEdit.getInstance().newEditSession(faweworld)) {
-                    session.setBlocks((Region) new CuboidRegion(BlockVector3.at(-(size / 2), 0, -(size / 2)), BlockVector3.at((size / 2), 0, (size / 2))), BlockTypes.BEDROCK.getDefaultState());
-                    session.setBlocks((Region) new CuboidRegion(BlockVector3.at(-(size / 2), 1, -(size / 2)), BlockVector3.at((size / 2), 2, (size / 2))), BlockTypes.DIRT.getDefaultState());
-                    session.setBlocks((Region) new CuboidRegion(BlockVector3.at(-(size / 2), 3, -(size / 2)), BlockVector3.at((size / 2), 3, (size / 2))), BlockTypes.GRASS.getDefaultState());
+                EditSession session = new EditSessionBuilder(faweworld).fastmode(true).build();
+
+                try {
+                    session.setBlocks(new CuboidRegion(new Vector(-(size / 2), 0, -(size / 2)), new Vector((size / 2), 0, (size / 2))), new BaseBlock(BlockID.BEDROCK));
+                    session.setBlocks(new CuboidRegion(new Vector(-(size / 2), 1, -(size / 2)), new Vector((size / 2), 2, (size / 2))), new BaseBlock(BlockID.DIRT));
+                    session.setBlocks(new CuboidRegion(new Vector(-(size / 2), 3, -(size / 2)), new Vector((size / 2), 3, (size / 2))), new BaseBlock(BlockID.GRASS));
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+
+                session.flushQueue();
                 break;
             }
             case GLASS: {
-                try (EditSession session = WorldEdit.getInstance().newEditSession(faweworld)) {
-                    session.setBlocks((Region) new CuboidRegion(BlockVector3.at(-3, 16, -3), BlockVector3.at(3, 16, 3)), BlockTypes.STONE.getDefaultState());
+                EditSession session = new EditSessionBuilder(faweworld).fastmode(true).build();
+
+                try {
+                    session.setBlocks(new CuboidRegion(new Vector(-3, 16, -3), new Vector(3, 16, 3)), new BaseBlock(BlockID.STONE));
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+
+                session.flushQueue();
+
                 world.getBlockAt(0, 16, 0).setType(Material.COBBLESTONE);
                 break;
             }

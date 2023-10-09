@@ -472,12 +472,12 @@ public class MainListener implements Listener {
                 String playeruuid = player.getUniqueId().toString();
                 String update = updatenews.getString(playeruuid);
                 if (update != null && !update.equals(version)) {
-                    player.sendTitle("§2KiwiServer", "Новое обновление v" + version + " пиши /updates", 10, 100, 100);
+                    player.sendTitle("§3Cyan§bWorld", "Новое обновление v" + version + " пиши /updates", 10, 100, 100);
                     player.sendMessage(" \nНовое обновление на сервере!\n" + "\nНапиши §b/updates §rчтобы узнать о новостях\n ");
                     player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, Integer.MAX_VALUE, 0.5f);
                     player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, Integer.MAX_VALUE, 1);
-                } else player.sendTitle("§2KiwiServer", "С возращением!", 10, 30, 10);
-            } else player.sendTitle("§2KiwiServer", "Добро пожаловать!", 10, 60, 10);
+                } else player.sendTitle("§3Cyan§bWorld", "С возращением!", 10, 30, 10);
+            } else player.sendTitle("§3Cyan§bWorld", "Добро пожаловать!", 10, 60, 10);
         }, 6);
 
         server.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
@@ -908,7 +908,7 @@ public class MainListener implements Listener {
                 if (player.isOp()) {
                     event.setCancelled(true);
                     server.getOnlinePlayers().forEach(players -> {
-                        players.sendTitle("§2KiwiServer", "Новое обновление v" + version + " пиши /updates", 10, 100, 100);
+                        players.sendTitle("§3Cyan§bWorld", "Новое обновление v" + version + " пиши /updates", 10, 100, 100);
                         players.sendMessage(" \nНовое обновление на сервере!\n" + "\nНапиши §b/updates §rчтобы узнать о новостях\n ");
                         players.playSound(players.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, Integer.MAX_VALUE, 0.5f);
                         players.playSound(players.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, Integer.MAX_VALUE, 1);

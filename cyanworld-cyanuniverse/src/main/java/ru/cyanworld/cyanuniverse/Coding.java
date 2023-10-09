@@ -1,15 +1,14 @@
 package ru.cyanworld.cyanuniverse;
 
-import com.fastasyncworldedit.core.FaweAPI;
+
+import com.boydti.fawe.FaweAPI;
+import com.boydti.fawe.object.schematic.Schematic;
+import com.boydti.fawe.util.EditSessionBuilder;
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.extent.clipboard.Clipboard;
-import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.blocks.BaseBlock;
+import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.regions.CuboidRegion;
-import com.sk89q.worldedit.regions.Region;
-import com.sk89q.worldedit.world.block.BaseBlock;
-import com.sk89q.worldedit.world.block.BlockState;
-import com.sk89q.worldedit.world.block.BlockTypes;
 import net.minecraft.server.v1_12_R1.NBTTagCompound;
 import net.minecraft.server.v1_12_R1.NBTTagList;
 import net.minecraft.server.v1_12_R1.NBTTagString;
@@ -43,21 +42,52 @@ public class Coding implements Listener {
     public static Map<World, CodeEventHandler> codeMap = new HashMap<>();
     public static List<UUID> canceledEvents = new ArrayList<>();
     public static String clearChat = getCleatChat();
-    public static ItemStack kit_playerevent = addPlaceAndBreakTags(new ItemBuilder(Material.DIAMOND_BLOCK).name("§bСобытие игрока").lore(Arrays.asList("§7Когда игрок что-то делает...")).build(), Arrays.asList("minecraft:repeating_command_block"), Arrays.asList("minecraft:wall_sign"));
+    public static ItemStack kit_playerevent = addPlaceAndBreakTags(
+        new ItemBuilder(Material.DIAMOND_BLOCK).name("§bСобытие игрока").lore(Arrays.asList("§7Когда игрок что-то делает...")).build(),
+        Arrays.asList("minecraft:repeating_command_block"),
+        Arrays.asList("minecraft:wall_sign")
+    );
 
-    public static ItemStack kit_playeraction = addPlaceAndBreakTags(new ItemBuilder(Material.COBBLESTONE).name("§aСделать игроку").lore(Arrays.asList("§7Сделать чтото с игроком...")).build(), Arrays.asList("minecraft:chain_command_block"), Arrays.asList("minecraft:wall_sign"));
+    public static ItemStack kit_playeraction = addPlaceAndBreakTags(
+        new ItemBuilder(Material.COBBLESTONE).name("§aСделать игроку").lore(Arrays.asList("§7Сделать чтото с игроком...")).build(),
+        Arrays.asList("minecraft:chain_command_block"),
+        Arrays.asList("minecraft:wall_sign")
+    );
 
-    public static ItemStack kit_warp = addPlaceAndBreakTags(new ItemBuilder(Material.LAPIS_BLOCK).name("§dВыполнить строку").lore(Arrays.asList("§7Получился длинный код? Разбейте его на строки!")).build(), Arrays.asList("minecraft:chain_command_block", "minecraft:repeating_command_block"), Arrays.asList("minecraft:wall_sign"));
+    public static ItemStack kit_warp = addPlaceAndBreakTags(
+        new ItemBuilder(Material.LAPIS_BLOCK).name("§dВыполнить строку").lore(Arrays.asList("§7Получился длинный код? Разбейте его на строки!")).build(),
+        Arrays.asList("minecraft:chain_command_block", "minecraft:repeating_command_block"),
+        Arrays.asList("minecraft:wall_sign")
+    );
 
-    public static ItemStack kit_ifplayer = addPlaceAndBreakTags(new ItemBuilder(Material.WOOD).name("§6Если игрок...").lore(Arrays.asList("§7Если игрок ___, делать ___")).build(), Arrays.asList("minecraft:chain_command_block"), Arrays.asList("minecraft:wall_sign"));
+    public static ItemStack kit_ifplayer = addPlaceAndBreakTags(
+        new ItemBuilder(Material.WOOD).name("§6Если игрок...").lore(Arrays.asList("§7Если игрок ___, делать ___")).build(),
+        Arrays.asList("minecraft:chain_command_block"),
+        Arrays.asList("minecraft:wall_sign")
+    );
 
-    public static ItemStack kit_ifentity = addPlaceAndBreakTags(new ItemBuilder(Material.BRICK).name("§2Если моб...").lore(Arrays.asList("§7Если моб ___, делать ___")).build(), Arrays.asList("minecraft:chain_command_block"), Arrays.asList("minecraft:wall_sign"));
+    public static ItemStack kit_ifentity = addPlaceAndBreakTags(
+        new ItemBuilder(Material.BRICK).name("§2Если моб...").lore(Arrays.asList("§7Если моб ___, делать ___")).build(),
+        Arrays.asList("minecraft:chain_command_block"),
+        Arrays.asList("minecraft:wall_sign")
+    );
 
-    public static ItemStack kit_gameaction = addPlaceAndBreakTags(new ItemBuilder(Material.NETHER_BRICK).name("§9Параметры игры").lore(Arrays.asList("§7Разные параметры, которые можно изменять")).build(), Arrays.asList("minecraft:chain_command_block"), Arrays.asList("minecraft:wall_sign"));
+    public static ItemStack kit_gameaction = addPlaceAndBreakTags(
+        new ItemBuilder(Material.NETHER_BRICK).name("§9Параметры игры").lore(Arrays.asList("§7Разные параметры, которые можно изменять")).build(),
+        Arrays.asList("minecraft:chain_command_block"),
+        Arrays.asList("minecraft:wall_sign"));
 
-    public static ItemStack kit_else = addPlaceAndBreakTags(new ItemBuilder(Material.ENDER_STONE).name("§3Иначе").lore(Arrays.asList("§7Поставьте этот блок после", "§7оператора \"Если...\" для цепочки", "§7Если игрок ___, делать ___, иначе ___")).build(), Arrays.asList("minecraft:chain_command_block"), Arrays.asList("minecraft:wall_sign"));
+    public static ItemStack kit_else = addPlaceAndBreakTags(
+        new ItemBuilder(Material.ENDER_STONE).name("§3Иначе").lore(Arrays.asList("§7Поставьте этот блок после", "§7оператора \"Если...\" для цепочки", "§7Если игрок ___, делать ___, иначе ___")).build(),
+        Arrays.asList("minecraft:chain_command_block"),
+        Arrays.asList("minecraft:wall_sign")
+    );
 
-    public static ItemStack kit_scheduler = addPlaceAndBreakTags(new ItemBuilder(Material.EMERALD_BLOCK).name("§aПланировщик").lore(Arrays.asList("§7Выполняет команды спустя время")).build(), Arrays.asList("minecraft:chain_command_block", "minecraft:repeating_command_block"), Arrays.asList("minecraft:wall_sign"));
+    public static ItemStack kit_scheduler = addPlaceAndBreakTags(
+        new ItemBuilder(Material.EMERALD_BLOCK).name("§aПланировщик").lore(Arrays.asList("§7Выполняет команды спустя время")).build(),
+        Arrays.asList("minecraft:chain_command_block", "minecraft:repeating_command_block"),
+        Arrays.asList("minecraft:wall_sign")
+    );
 
     public static ItemStack kit_glass = addPlaceAndBreakTags(new ItemStack(Material.STAINED_GLASS, 1, (short) 0), Arrays.asList("minecraft:glass"), Arrays.asList("minecraft:stained_glass", "minecraft:wall_sign"));
 
@@ -151,7 +181,10 @@ public class Coding implements Listener {
                                 sign.setLine(1, "§o*Кликни блоком*");
                                 sign.update();
 
-                                moveBlocks(faweworld, BlockVector3.at(stoneblock.getX(), stoneblock.getY(), stoneblock.getZ()), BlockVector3.at(1099, stoneblock.getY() + 1, stoneblock.getZ() + 1), BlockVector3.at(stoneblock.getX() + 4, stoneblock.getY(), stoneblock.getZ()));
+                                moveBlocks(faweworld,
+                                    new Vector(stoneblock.getX(), stoneblock.getY(), stoneblock.getZ()),
+                                    new Vector(1099, stoneblock.getY() + 1, stoneblock.getZ() + 1),
+                                    new Vector(stoneblock.getX() + 4, stoneblock.getY(), stoneblock.getZ()));
 
                                 stoneblock.setType(Material.PISTON_BASE);
                                 stoneblock.setData((byte) 5);
@@ -179,7 +212,10 @@ public class Coding implements Listener {
                                 endpiston.setType(Material.PISTON_BASE);
                                 endpiston.setData((byte) 4);
                             } else {
-                                moveBlocks(faweworld, BlockVector3.at(endpiston.getX(), endpiston.getY(), endpiston.getZ()), BlockVector3.at(1100, endpiston.getY() + 1, endpiston.getZ() + 1), BlockVector3.at(endpiston.getX() + 2, endpiston.getY(), endpiston.getZ()));
+                                moveBlocks(faweworld,
+                                    new Vector(endpiston.getX(), endpiston.getY(), endpiston.getZ()),
+                                    new Vector(1100, endpiston.getY() + 1, endpiston.getZ() + 1),
+                                    new Vector(endpiston.getX() + 2, endpiston.getY(), endpiston.getZ()));
                                 server.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                                     endpiston.setType(Material.PISTON_BASE);
                                     endpiston.setData((byte) 4);
@@ -223,7 +259,11 @@ public class Coding implements Listener {
                         sign.setLine(1, "§o*Кликни блоком*");
                         sign.update();
 
-                        moveBlocks(faweworld, BlockVector3.at(stoneblock.getX(), stoneblock.getY(), stoneblock.getZ()), BlockVector3.at(1099, stoneblock.getY() + 1, stoneblock.getZ() + 1), BlockVector3.at(stoneblock.getX() + 2, stoneblock.getY(), stoneblock.getZ()));
+                        moveBlocks(faweworld,
+                            new Vector(stoneblock.getX(), stoneblock.getY(), stoneblock.getZ()),
+                            new Vector(1099, stoneblock.getY() + 1, stoneblock.getZ() + 1),
+                            new Vector(stoneblock.getX() + 2, stoneblock.getY(), stoneblock.getZ())
+                        );
 
                         stoneblock.setType(Material.STONE);
                         stoneblock.getLocation().add(1, 0, 0).getBlock().setType(Material.AIR);
@@ -280,7 +320,10 @@ public class Coding implements Listener {
                         sign.setLine(1, "§o*Кликни блоком*");
                         sign.update();
 
-                        moveBlocks(faweworld, BlockVector3.at(stoneblock.getX(), stoneblock.getY(), stoneblock.getZ()), BlockVector3.at(1099, stoneblock.getY() + 1, stoneblock.getZ() + 1), BlockVector3.at(stoneblock.getX() + 4, stoneblock.getY(), stoneblock.getZ()));
+                        moveBlocks(faweworld,
+                            new Vector(stoneblock.getX(), stoneblock.getY(), stoneblock.getZ()),
+                            new Vector(1099, stoneblock.getY() + 1, stoneblock.getZ() + 1),
+                            new Vector(stoneblock.getX() + 4, stoneblock.getY(), stoneblock.getZ()));
 
                         stoneblock.setType(Material.PISTON_BASE);
                         stoneblock.setData((byte) 5);
@@ -308,7 +351,10 @@ public class Coding implements Listener {
                         endpiston.setType(Material.PISTON_BASE);
                         endpiston.setData((byte) 4);
                     } else {
-                        moveBlocks(faweworld, BlockVector3.at(endpiston.getX(), endpiston.getY(), endpiston.getZ()), BlockVector3.at(1100, endpiston.getY() + 1, endpiston.getZ() + 1), BlockVector3.at(endpiston.getX() + 2, endpiston.getY(), endpiston.getZ()));
+                        moveBlocks(faweworld,
+                            new Vector(endpiston.getX(), endpiston.getY(), endpiston.getZ()),
+                            new Vector(1100, endpiston.getY() + 1, endpiston.getZ() + 1),
+                            new Vector(endpiston.getX() + 2, endpiston.getY(), endpiston.getZ()));
                         server.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                             endpiston.setType(Material.PISTON_BASE);
                             endpiston.setData((byte) 4);
@@ -336,7 +382,10 @@ public class Coding implements Listener {
                         sign.setLine(0, "§lИначе");
                         sign.update();
 
-                        moveBlocks(faweworld, BlockVector3.at(stoneblock.getX(), stoneblock.getY(), stoneblock.getZ()), BlockVector3.at(1099, stoneblock.getY() + 1, stoneblock.getZ() + 1), BlockVector3.at(stoneblock.getX() + 4, stoneblock.getY(), stoneblock.getZ()));
+                        moveBlocks(faweworld,
+                            new Vector(stoneblock.getX(), stoneblock.getY(), stoneblock.getZ()),
+                            new Vector(1099, stoneblock.getY() + 1, stoneblock.getZ() + 1),
+                            new Vector(stoneblock.getX() + 4, stoneblock.getY(), stoneblock.getZ()));
 
                         stoneblock.setType(Material.PISTON_BASE);
                         stoneblock.setData((byte) 5);
@@ -363,7 +412,10 @@ public class Coding implements Listener {
                         endpiston.setType(Material.PISTON_BASE);
                         endpiston.setData((byte) 4);
                     } else {
-                        moveBlocks(faweworld, BlockVector3.at(endpiston.getX(), endpiston.getY(), endpiston.getZ()), BlockVector3.at(1100, endpiston.getY() + 1, endpiston.getZ() + 1), BlockVector3.at(endpiston.getX() + 2, endpiston.getY(), endpiston.getZ()));
+                        moveBlocks(faweworld,
+                            new Vector(endpiston.getX(), endpiston.getY(), endpiston.getZ()),
+                            new Vector(1100, endpiston.getY() + 1, endpiston.getZ() + 1),
+                            new Vector(endpiston.getX() + 2, endpiston.getY(), endpiston.getZ()));
                         server.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                             endpiston.setType(Material.PISTON_BASE);
                             endpiston.setData((byte) 4);
@@ -392,7 +444,19 @@ public class Coding implements Listener {
                         sign.setLine(1, "§o*Кликни блоком*");
                         sign.update();
                         try {
-                            moveBlocks(faweworld, BlockVector3.at(stoneblock.getX(), stoneblock.getY(), stoneblock.getZ()), BlockVector3.at(1099, stoneblock.getY() + 1, stoneblock.getZ() + 1), BlockVector3.at(stoneblock.getX() + 2, stoneblock.getY(), stoneblock.getZ()));
+                            EditSession copy = new EditSessionBuilder(faweworld).fastmode(true).build();
+                            EditSession set = new EditSessionBuilder(faweworld).fastmode(true).build();
+                            EditSession paste = new EditSessionBuilder(faweworld).fastmode(true).build();
+
+                            com.sk89q.worldedit.Vector pos1 = new Vector(stoneblock.getX(), stoneblock.getY(), stoneblock.getZ());
+                            com.sk89q.worldedit.Vector pos2 = new Vector(1099, stoneblock.getY() + 1, stoneblock.getZ() + 1);
+                            CuboidRegion region = new CuboidRegion(pos1, pos2);
+                            BlockArrayClipboard lazyCopy = copy.lazyCopy(region);
+                            Schematic schem = new Schematic(lazyCopy);
+
+                            Vector to = new Vector(stoneblock.getX() + 2, stoneblock.getY(), stoneblock.getZ());
+                            schem.paste(paste, to, true);
+                            paste.flushQueue();
 
                             stoneblock.setType(Material.NETHERRACK);
                             stoneblock.getLocation().add(1, 0, 0).getBlock().setType(Material.AIR);
@@ -431,7 +495,10 @@ public class Coding implements Listener {
                         sign.setLine(1, "§o*Кликни блоком*");
                         sign.update();
 
-                        moveBlocks(faweworld, BlockVector3.at(stoneblock.getX(), stoneblock.getY(), stoneblock.getZ()), BlockVector3.at(1099, stoneblock.getY() + 1, stoneblock.getZ() + 1), BlockVector3.at(stoneblock.getX() + 4, stoneblock.getY(), stoneblock.getZ()));
+                        moveBlocks(faweworld,
+                            new Vector(stoneblock.getX(), stoneblock.getY(), stoneblock.getZ()),
+                            new Vector(1099, stoneblock.getY() + 1, stoneblock.getZ() + 1),
+                            new Vector(stoneblock.getX() + 4, stoneblock.getY(), stoneblock.getZ()));
 
                         stoneblock.setType(Material.PISTON_BASE);
                         stoneblock.setData((byte) 5);
@@ -459,7 +526,10 @@ public class Coding implements Listener {
                         endpiston.setType(Material.PISTON_BASE);
                         endpiston.setData((byte) 4);
                     } else {
-                        moveBlocks(faweworld, BlockVector3.at(endpiston.getX(), endpiston.getY(), endpiston.getZ()), BlockVector3.at(1100, endpiston.getY() + 1, endpiston.getZ() + 1), BlockVector3.at(endpiston.getX() + 2, endpiston.getY(), endpiston.getZ()));
+                        moveBlocks(faweworld,
+                            new Vector(endpiston.getX(), endpiston.getY(), endpiston.getZ()),
+                            new Vector(1100, endpiston.getY() + 1, endpiston.getZ() + 1),
+                            new Vector(endpiston.getX() + 2, endpiston.getY(), endpiston.getZ()));
                         server.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                             endpiston.setType(Material.PISTON_BASE);
                             endpiston.setData((byte) 4);
@@ -494,14 +564,30 @@ public class Coding implements Listener {
                 switch (mainblock.getType()) {
                     case EMERALD_BLOCK:
                     case ENDER_STONE:
-                    case WOOD, BRICK: {
+                    case WOOD: {
                         Location pistonbegin = mainblock.getLocation().clone().add(1, 0, 0);
                         Location pistonend = getPistonEndFrom(pistonbegin) != null ? getPistonEndFrom(pistonbegin) : pistonbegin.clone().add(100, 0, 0);
                         for (int x = pistonbegin.getBlockX(); x < pistonend.getBlockX(); x++) {
                             world.getBlockAt(x, 2, pistonbegin.getBlockZ()).setType(Material.AIR);
                         }
-                        setBlocks(faweworld, BlockVector3.at(pistonbegin.getX() - 1, 1, pistonbegin.getZ()), BlockVector3.at(pistonend.getX(), 1, pistonend.getBlockZ() + 1), BlockTypes.AIR.getDefaultState());
-                        server.getScheduler().scheduleSyncDelayedTask(plugin, () -> moveBlocks(faweworld, BlockVector3.at(pistonend.getX() + 1, 1, pistonend.getZ()), BlockVector3.at(1100, 2, pistonend.getZ() + 1), BlockVector3.at(pistonbegin.getX() - 1, 1, pistonbegin.getZ())));
+                        setBlocks(faweworld, new Vector(pistonbegin.getX() - 1, 1, pistonbegin.getZ()), new Vector(pistonend.getX(), 1, pistonend.getBlockZ() + 1), Material.AIR);
+                        server.getScheduler().scheduleSyncDelayedTask(plugin, () -> moveBlocks(faweworld,
+                            new Vector(pistonend.getX() + 1, 1, pistonend.getZ()),
+                            new Vector(1100, 2, pistonend.getZ() + 1),
+                            new Vector(new Vector(pistonbegin.getX() - 1, 1, pistonbegin.getZ()))));
+                        break;
+                    }
+                    case BRICK: {
+                        Location pistonbegin = mainblock.getLocation().clone().add(1, 0, 0);
+                        Location pistonend = getPistonEndFrom(pistonbegin) != null ? getPistonEndFrom(pistonbegin) : pistonbegin.clone().add(100, 0, 0);
+                        for (int x = pistonbegin.getBlockX(); x < pistonend.getBlockX(); x++) {
+                            world.getBlockAt(x, 2, pistonbegin.getBlockZ()).setType(Material.AIR);
+                        }
+                        setBlocks(faweworld, new Vector(pistonbegin.getX() - 1, 1, pistonbegin.getZ()), new Vector(pistonend.getX(), 1, pistonend.getBlockZ() + 1), Material.AIR);
+                        server.getScheduler().scheduleSyncDelayedTask(plugin, () -> moveBlocks(faweworld,
+                            new Vector(pistonend.getX() + 1, 1, pistonend.getZ()),
+                            new Vector(1100, 2, pistonend.getZ() + 1),
+                            new Vector(new Vector(pistonbegin.getX() - 1, 1, pistonbegin.getZ()))));
                         break;
                     }
                     case DIAMOND_BLOCK: {
@@ -510,13 +596,33 @@ public class Coding implements Listener {
                             chestblock.setType(Material.AIR);
                         }
                         server.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                            setBlocks(faweworld, BlockVector3.at(block.getX(), block.getY(), block.getZ() - 1), BlockVector3.at(1099, block.getY(), block.getZ()), BlockTypes.AIR.getDefaultState());
+                            EditSession session = new EditSessionBuilder(faweworld).fastmode(true).build();
+                            com.sk89q.worldedit.Vector pos1 = new Vector(block.getX(), block.getY(), block.getZ() - 1);
+                            com.sk89q.worldedit.Vector pos2 = new Vector(1099, block.getY(), block.getZ());
+                            CuboidRegion region = new CuboidRegion(pos1, pos2);
+                            try {
+                                session.setBlocks(region, new BaseBlock(0));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            session.flushQueue();
                         });
                         break;
                     }
                     default: {
                         server.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                            moveBlocks(faweworld, BlockVector3.at(block.getX() + 2, block.getY(), block.getZ() - 1), BlockVector3.at(1099, block.getY() + 1, block.getZ()), BlockVector3.at(block.getX(), block.getY(), block.getZ() - 1));
+                            EditSession copy = new EditSessionBuilder(faweworld).fastmode(true).build();
+                            EditSession paste = new EditSessionBuilder(faweworld).fastmode(true).build();
+
+                            com.sk89q.worldedit.Vector pos1 = new Vector(block.getX() + 2, block.getY(), block.getZ() - 1);
+                            com.sk89q.worldedit.Vector pos2 = new Vector(1099, block.getY() + 1, block.getZ());
+                            CuboidRegion region = new CuboidRegion(pos1, pos2);
+                            BlockArrayClipboard lazyCopy = copy.lazyCopy(region);
+                            Schematic schem = new Schematic(lazyCopy);
+
+                            Vector to = new Vector(block.getX(), block.getY(), block.getZ() - 1);
+                            schem.paste(paste, to, true);
+                            paste.flushQueue();
                         });
                     }
                 }
@@ -553,19 +659,27 @@ public class Coding implements Listener {
         return false;
     }
 
-    public static void moveBlocks(com.sk89q.worldedit.world.World world, BlockVector3 pos1, BlockVector3 pos2, BlockVector3 pasteto) {
-        try (EditSession session = WorldEdit.getInstance().newEditSession(world)) {
-            CuboidRegion region = new CuboidRegion(pos1, pos2);
-            Clipboard clipboard = session.lazyCopy(region);
-            clipboard.paste(world, pasteto, true);
-        }
+    public static void moveBlocks(com.sk89q.worldedit.world.World world, Vector pos1, Vector pos2, Vector pasteto) {
+        EditSession copy = new EditSessionBuilder(world).fastmode(true).build();
+        EditSession paste = new EditSessionBuilder(world).fastmode(true).build();
+
+        CuboidRegion region = new CuboidRegion(pos1, pos2);
+        BlockArrayClipboard lazyCopy = copy.lazyCopy(region);
+        Schematic schem = new Schematic(lazyCopy);
+
+        schem.paste(paste, pasteto, true);
+        paste.flushQueue();
     }
 
-    public static void setBlocks(com.sk89q.worldedit.world.World world, BlockVector3 pos1, BlockVector3 pos2, BlockState blockState) {
-        try (EditSession session = WorldEdit.getInstance().newEditSession(world)) {
-            CuboidRegion region = new CuboidRegion(pos1, pos2);
-            session.setBlocks((Region) region, new BaseBlock(blockState));
+    public static void setBlocks(com.sk89q.worldedit.world.World world, Vector pos1, Vector pos2, Material material) {
+        EditSession session = new EditSessionBuilder(world).fastmode(true).build();
+        CuboidRegion region = new CuboidRegion(pos1, pos2);
+        try {
+            session.setBlocks(region, new BaseBlock(material.getId()));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        session.flushQueue();
     }
 
     public static Location getPistonEndFrom(Location location) {
@@ -667,3 +781,4 @@ public class Coding implements Listener {
     }
 
 }
+
